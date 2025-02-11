@@ -1,8 +1,3 @@
-CREATE TABLE IF NOT EXISTS comment (
-  id SERIAL PRIMARY KEY,
-  text TEXT NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS dream_session (
   id TEXT PRIMARY KEY,
   label TEXT NOT NULL,
@@ -16,3 +11,4 @@ CREATE TABLE IF NOT EXISTS users (
   password_digest TEXT NOT NULL,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
+

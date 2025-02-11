@@ -1,6 +1,6 @@
 (executable
  (name books)
- (libraries caqti-driver-postgresql dream)
+ (libraries caqti-driver-postgresql dream safepass)
  (preprocess (pps lwt_ppx)))
 
 (rule

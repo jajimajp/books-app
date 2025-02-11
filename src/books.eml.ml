@@ -20,12 +20,30 @@ let add_comment =
     let%lwt unit_or_error = Db.exec query text in
     Caqti_lwt.or_fail unit_or_error
 
-let render comments request =
+let list_users =
+  let query =
+    let open Caqti_request.Infix in
+    (T.unit ->* T.(t2 int string))
+    "SELECT id, name FROM users" in
+  fun (module Db : DB) ->
+    let%lwt users = Db.collect_list query () in
+    Caqti_lwt.or_fail users
+
+let render users comments request =
   <html>
   <body>
 
-%   comments |> List.iter (fun (_id, comment) ->
-      <p><%s comment %></p><% ); %>
+    <h2>Users</h2>
+    <ul>
+%     users |> List.iter (fun (id, name) ->
+        <li>(<%s string_of_int id %>) <%s name %></li><% ); %>
+    </ul>
+
+    <h2>Comments</h2>
+    <ul>
+%     comments |> List.iter (fun (_id, comment) ->
+        <li><%s comment %></li><% ); %>
+    </ul>
 
     <form method="POST" action="/">
       <%s! Dream.csrf_tag request %>
@@ -43,8 +61,9 @@ let () =
   @@ Dream.router [
 
     Dream.get "/" (fun request ->
+      let%lwt users = Dream.sql request list_users in
       let%lwt comments = Dream.sql request list_comments in
-      Dream.html (render comments request));
+      Dream.html (render users comments request));
 
     Dream.post "/" (fun request ->
       match%lwt Dream.form request with

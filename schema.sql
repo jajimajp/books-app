@@ -1,11 +1,18 @@
-CREATE TABLE comment (
+CREATE TABLE IF NOT EXISTS comment (
   id SERIAL PRIMARY KEY,
   text TEXT NOT NULL
 );
 
-CREATE TABLE dream_session (
+CREATE TABLE IF NOT EXISTS dream_session (
   id TEXT PRIMARY KEY,
   label TEXT NOT NULL,
   expires_at REAL NOT NULL,
   payload TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  password_digest TEXT NOT NULL,
+  is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );

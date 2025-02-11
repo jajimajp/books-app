@@ -17,5 +17,6 @@
   (ocaml (>= "4.08.0"))
   (dune (>= "2.0.0"))
   (dream (>= "1.0.0~alpha8"))
+  (safepass (>= "3.1"))
   (caqti-driver-postgresql (>= "2.1.2"))))
 

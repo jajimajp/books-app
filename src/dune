@@ -1,0 +1,10 @@
+(executable
+ (name books)
+ (libraries caqti-driver-postgresql dream)
+ (preprocess (pps lwt_ppx)))
+
+(rule
+ (targets books.ml)
+ (deps books.eml.ml)
+ (action (run dream_eml %{deps} --workspace %{workspace_root})))
+

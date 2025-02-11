@@ -29,6 +29,16 @@ let list_users =
     let%lwt users = Db.collect_list query () in
     Caqti_lwt.or_fail users
 
+let add_user =
+  let query =
+    let open Caqti_request.Infix in
+    (T.(t2 string string) ->. T.unit)
+    "INSERT INTO users (name, password_digest) VALUES ($1, $2)" in
+  fun name password (module Db : DB) ->
+    let password_digest = Bcrypt.hash password |> Bcrypt.string_of_hash in
+    let%lwt unit_or_error = Db.exec query (name, password_digest) in
+    Caqti_lwt.or_fail unit_or_error
+
 let render users comments request =
   <html>
   <body>
@@ -38,6 +48,15 @@ let render users comments request =
 %     users |> List.iter (fun (id, name) ->
         <li>(<%s string_of_int id %>) <%s name %></li><% ); %>
     </ul>
+
+    <form method="POST" action="/users">
+      <%s! Dream.csrf_tag request %>
+      <label for="name">Name:</label>
+      <input id="name" name="name">
+      <label for="password">Password:</label>
+      <input id="password" type="password" name="password">
+      <button>Add user</button>
+    </form>
 
     <h2>Comments</h2>
     <ul>
@@ -69,6 +88,14 @@ let () =
       match%lwt Dream.form request with
       | `Ok ["text", text] ->
         let%lwt () = Dream.sql request (add_comment text) in
+        Dream.redirect request "/"
+      | _ ->
+        Dream.empty `Bad_Request);
+
+    Dream.post "/users" (fun request ->
+      match%lwt Dream.form request with
+      | `Ok ["name", name; "password", password] ->
+        let%lwt () = Dream.sql request (add_user name password) in
         Dream.redirect request "/"
       | _ ->
         Dream.empty `Bad_Request);
